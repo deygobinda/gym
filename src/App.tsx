@@ -25,6 +25,7 @@ import {
 export default function ZomatoPartner() {
   const [searchLocation, setSearchLocation] = useState("Delhi NCR");
   const [currentProductIndex, setCurrentProductIndex] = useState(0);
+  const [itemsPerPage, setItemsPerPage] = useState(3);
 
   const products = [
     {
@@ -66,21 +67,38 @@ export default function ZomatoPartner() {
 
   const nextProduct = useCallback(() => {
     setCurrentProductIndex(
-      (prevIndex) => (prevIndex + 1) % (products.length - 2)
+      (prevIndex) => (prevIndex + 1) % (products.length - itemsPerPage + 1)
     );
-  }, [products.length]);
+  }, [products.length, itemsPerPage]);
 
   const prevProduct = useCallback(() => {
     setCurrentProductIndex(
       (prevIndex) =>
-        (prevIndex - 1 + (products.length - 2)) % (products.length - 2)
+        (prevIndex - 1 + (products.length - itemsPerPage + 1)) %
+        (products.length - itemsPerPage + 1)
     );
-  }, [products.length]);
+  }, [products.length, itemsPerPage]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 640) {
+        setItemsPerPage(1);
+      } else if (window.innerWidth < 1024) {
+        setItemsPerPage(2);
+      } else {
+        setItemsPerPage(3);
+      }
+    };
+
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
       nextProduct();
-    }, 2000);
+    }, 5000);
 
     return () => clearInterval(interval);
   }, [nextProduct]);
@@ -303,13 +321,16 @@ export default function ZomatoPartner() {
               <div
                 className="flex transition-transform duration-300 ease-in-out"
                 style={{
-                  transform: `translateX(-${currentProductIndex * (100 / 3)}%)`,
+                  transform: `translateX(-${
+                    currentProductIndex * (100 / itemsPerPage)
+                  }%)`,
                 }}
               >
                 {products.map((product, index) => (
                   <div
                     key={index}
-                    className="w-full md:w-1/3 flex-shrink-0 px-2 md:px-4"
+                    className={`w-full flex-shrink-0 px-2 md:px-4`}
+                    style={{ flex: `0 0 ${100 / itemsPerPage}%` }}
                   >
                     <Card>
                       <CardContent className="p-4 md:p-6">
@@ -337,18 +358,20 @@ export default function ZomatoPartner() {
               </div>
             </div>
             <div className="flex justify-center mt-4">
-              {products.slice(0, products.length - 2).map((_, index) => (
-                <button
-                  key={index}
-                  className={`h-2 w-2 rounded-full mx-1 ${
-                    index === currentProductIndex
-                      ? "bg-blue-500"
-                      : "bg-gray-300"
-                  }`}
-                  onClick={() => setCurrentProductIndex(index)}
-                  aria-label={`Go to product ${index + 1}`}
-                />
-              ))}
+              {products
+                .slice(0, products.length - itemsPerPage + 1)
+                .map((_, index) => (
+                  <button
+                    key={index}
+                    className={`h-2 w-2 rounded-full mx-1 ${
+                      index === currentProductIndex
+                        ? "bg-blue-500"
+                        : "bg-gray-300"
+                    }`}
+                    onClick={() => setCurrentProductIndex(index)}
+                    aria-label={`Go to product ${index + 1}`}
+                  />
+                ))}
             </div>
           </div>
         </div>
