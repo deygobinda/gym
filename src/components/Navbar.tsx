@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { Menu, X } from 'lucide-react'
 import logo from "../assets/asset 0.png"
+import { useNavigate } from 'react-router-dom'
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const navigate = useNavigate();
 
   return (
     <nav className="bg-yellow-400">
@@ -17,7 +19,9 @@ export default function Navbar() {
               <a href="#" className="text-white hover:bg-yellow-500 px-3 py-2 rounded-md text-lg font-medium">
                 Advertise
               </a>
-              <button className="px-6 py-2 text-white border-2 border-white rounded-md hover:bg-yellow-500 text-lg font-medium">
+              <button className="px-6 py-2 text-white border-2 border-white rounded-md hover:bg-yellow-500 text-lg font-medium" onClick={() =>{
+                navigate("/login")
+              }}>
                 Login
               </button>
             </div>
